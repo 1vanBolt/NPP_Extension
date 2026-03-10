@@ -6,6 +6,16 @@
 3. Переключение сложности (мирный/сложный)
 4. Старт/стоп глобального таймера подготовки на 30 минут
 
+## Почему у тебя ошибки Gradle/Forge
+
+Для `ForgeGradle 1.2` (Minecraft 1.7.10) нужна старая связка инструментов:
+- **Java 8**
+- **Gradle 2.14.1**
+
+Если запускать новым Gradle (7/8+), появляются ошибки вроде:
+- `Plugin with id 'maven' not found`
+- `Could not create task ':reobf' ... TaskInputs.files(...)`
+
 ## Почему у тебя 27 ошибок `package ... does not exist`
 
 Ты компилируешь `BattlePrepMod.java` отдельно, без classpath Forge/FML и без остальных исходников.
@@ -15,25 +25,21 @@
 
 Именно поэтому `cpw.mods.fml.*` и `ru.npp.extension.*` “не находятся”.
 
-## Gradle обязателен?
-
-Коротко:
-- **Для упаковки `.class` -> `.jar`: не обязателен**.
-- **Для компиляции мода из `src`: обычно проще через Gradle**, потому что он сам подтягивает Forge/FML зависимости.
-- **Без Gradle тоже можно**, но тогда ты сам готовишь `libs/*.jar` и classpath.
-
 ## Сборка без IDE
 
-### Вариант A (рекомендуется): через Gradle 6.9.4
+### Вариант A (рекомендуется): Gradle 2.14.1
+
+1) Установи Java 8 (`java -version` должен показать 1.8)
+2) Скачай локально совместимый Gradle:
+
+```bash
+./scripts/use-gradle-2.14.1.sh
+```
+
+3) Собери мод:
 
 ```bash
 ./scripts/build-no-ide.sh
-```
-
-или вручную:
-
-```bash
-gradle clean build
 ```
 
 Итоговый jar:
@@ -78,10 +84,5 @@ jar cf dist\npp-extension-1.0.0-manual.jar -C build\classes\main . -C src\main\r
 ## Требования
 
 - JDK 8 (не 11/17/21/25)
-- Для Gradle-сборки: установленный `gradle`
+- Для Gradle-сборки: Gradle 2.14.1
 - Для ручной сборки: подготовленные зависимости в `libs/*.jar`
-
-## Типичные ошибки
-
-- `Plugin with id 'maven' not found`
-  - Запущен слишком новый Gradle (7+). Для Forge 1.7.10 используй Gradle 6.9.4.

@@ -13,8 +13,8 @@ buildscript {
     }
 }
 
-if (GradleVersion.current() >= GradleVersion.version('7.0')) {
-    throw new GradleException('ForgeGradle 1.2 (Minecraft 1.7.10) requires Gradle < 7. Use Gradle 6.9.4 with Java 8.')
+if (GradleVersion.current() != GradleVersion.version('2.14.1')) {
+    throw new GradleException('ForgeGradle 1.2 (Minecraft 1.7.10) requires Gradle 2.14.1. Current: ' + GradleVersion.current())
 }
 
 apply plugin: 'forge'
@@ -32,7 +32,7 @@ repositories {
     mavenCentral()
 }
 
-tasks.withType(JavaCompile).configureEach {
+tasks.withType(JavaCompile) {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     options.encoding = 'UTF-8'
