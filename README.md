@@ -6,41 +6,25 @@
 3. Переключение сложности (мирный/сложный)
 4. Старт/стоп глобального таймера подготовки на 30 минут
 
+## Почему у тебя 27 ошибок `package ... does not exist`
+
+Ты компилируешь `BattlePrepMod.java` отдельно, без classpath Forge/FML и без остальных исходников.
+Для Forge-мода так нельзя: нужны
+- все файлы из `src/main/java`
+- jar-зависимости Forge/FML в `-cp`
+
+Именно поэтому `cpw.mods.fml.*` и `ru.npp.extension.*` “не находятся”.
+
 ## Gradle обязателен?
 
 Коротко:
 - **Для упаковки `.class` -> `.jar`: не обязателен**.
-- **Для нормальной компиляции Forge 1.7.10-мода из `src`: почти всегда обязателен** (или придется руками собирать очень длинный classpath из Forge/FML зависимостей).
+- **Для компиляции мода из `src`: обычно проще через Gradle**, потому что он сам подтягивает Forge/FML зависимости.
+- **Без Gradle тоже можно**, но тогда ты сам готовишь `libs/*.jar` и classpath.
 
-То есть твой вариант “через cmd в 2 команды” — **можно**, если `.class` уже готовы.
+## Сборка без IDE
 
-## Как собрать без IDE
-
-IDE не нужна вообще — достаточно терминала.
-
-### 1) Что нужно установить
-- **JDK 8** (именно 8, не 11/17/21/25)
-- **Gradle** (лучше 6.x) — для шага компиляции
-
-> Для ForgeGradle 1.2 (MC 1.7.10) новые версии Java обычно ломают сборку.
-
-### 2) Проверить версии
-
-```bash
-java -version
-javac -version
-gradle -v
-```
-
-Если видишь не Java 8, переключи окружение:
-
-```bash
-export JAVA_HOME=/path/to/jdk8
-export PATH="$JAVA_HOME/bin:$PATH"
-java -version
-```
-
-### 3) Вариант А: полностью через Gradle (рекомендуется)
+### Вариант A (рекомендуется): через Gradle
 
 ```bash
 ./scripts/build-no-ide.sh
@@ -52,47 +36,47 @@ java -version
 gradle clean build
 ```
 
-Итоговый файл:
+Итоговый jar:
 
 ```text
 build/libs/npp-extension-1.0.0.jar
 ```
 
-### 4) Вариант Б: как ты делал (из готовых `.class` в `.jar`)
+### Вариант B: без Gradle (ручная компиляция + упаковка)
 
-Если классы уже есть (например после `gradle build`), можно упаковать **без gradle**:
+1) Положи Forge/FML jar-файлы в папку `libs/`.
+2) Скомпилируй source:
+
+```bash
+./scripts/compile-from-src-no-gradle.sh
+```
+
+3) Упакуй `.class` в jar:
 
 ```bash
 ./scripts/package-from-classes.sh
 ```
 
-Итоговый файл:
+Итоговый jar:
 
 ```text
 dist/npp-extension-1.0.0-manual.jar
 ```
 
-#### Прямо “в 2 команды” (ручной аналог)
+## CMD (Windows) минимальный пример вручную
 
-```bash
-cp -r build/classes/main/. dist/tmp && cp -r src/main/resources/. dist/tmp
-(cd dist/tmp && jar cf ../npp-extension-1.0.0-manual.jar .)
+```cmd
+REM 1) компиляция всех source, а не одного BattlePrepMod.java
+javac -encoding UTF-8 -source 1.8 -target 1.8 -cp "libs/*" -d build\classes\main src\main\java\ru\npp\extension\**\*.java
+
+REM 2) упаковка
+jar cf dist\npp-extension-1.0.0-manual.jar -C build\classes\main . -C src\main\resources .
 ```
 
-### 5) Windows PowerShell (полная сборка)
+> Важно: на Windows `**` может не раскрываться в `cmd` на старых конфигурациях. Тогда используй список файлов или PowerShell.
 
-```powershell
-$env:JAVA_HOME="C:\path\to\jdk8"
-$env:Path="$env:JAVA_HOME\\bin;$env:Path"
-java -version
-gradle clean build
-```
+## Требования
 
-## Типичные ошибки
-
-- `Unsupported class file major version ...`
-  - Запущена не Java 8. Переключи `JAVA_HOME` на JDK 8.
-- `gradle: command not found`
-  - Установи Gradle и проверь, что он в `PATH`.
-- `build/classes/main not found`
-  - Нет готовых `.class`; сначала компиляция (`gradle build`).
+- JDK 8 (не 11/17/21/25)
+- Для Gradle-сборки: установленный `gradle`
+- Для ручной сборки: подготовленные зависимости в `libs/*.jar`
