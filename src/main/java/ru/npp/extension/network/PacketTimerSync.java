@@ -5,7 +5,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import ru.npp.extension.client.ClientTimerState;
+import ru.npp.extension.client.TimerOverlayRenderer;
 
 public class PacketTimerSync implements IMessage {
     private boolean running;
@@ -37,7 +37,7 @@ public class PacketTimerSync implements IMessage {
             Minecraft.getMinecraft().func_152344_a(new Runnable() {
                 @Override
                 public void run() {
-                    ClientTimerState.setState(message.running, message.remainingSeconds);
+                    TimerOverlayRenderer.setTimerState(message.running, message.remainingSeconds);
                 }
             });
             return null;
