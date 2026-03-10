@@ -1,6 +1,6 @@
 # NPP Extension (Forge 1.7.10)
 
-## Сборка
+## Сборка только в .class
 
 Требования:
 - Java 8
@@ -9,19 +9,11 @@
 Команда:
 
 ```bash
-gradle clean build
+gradle compileClassesOnly
 ```
 
-Готовый мод:
+Готовые `.class`:
 
 ```text
-build/libs/npp-extension-1.0.0.jar
-```
-
-Если снова всплывает старая ошибка `downloadClient` с `amazonaws.com`,
-в `build.gradle` уже добавлен авто-bootstrapping нужных Minecraft 1.7.10 jar из Mojang manifest.
-При необходимости можно запустить вручную:
-
-```bash
-gradle bootstrapLegacyMinecraftAssets
+build/classes/main
 ```

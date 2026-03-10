@@ -85,3 +85,12 @@ tasks.withType(JavaCompile) {
     targetCompatibility = '1.8'
     options.encoding = 'UTF-8'
 }
+
+
+task compileClassesOnly(dependsOn: ['classes']) {
+    group = 'build'
+    description = 'Compiles mod sources into .class only (no jar/reobf).'
+    doLast {
+        println '[OK] Classes are in build/classes/main'
+    }
+}
