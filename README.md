@@ -16,6 +16,17 @@
 - `Plugin with id 'maven' not found`
 - `Could not create task ':reobf' ... TaskInputs.files(...)`
 
+## Ошибка `:downloadClient` / `FileNotFoundException ... s3.amazonaws.com`
+
+Это известная проблема старого ForgeGradle: он пытается качать клиент по устаревшему S3 URL.
+В проект добавлен скрипт, который кладет нужные `client.jar` и `server.jar` в Gradle cache по актуальному Mojang manifest:
+
+```bash
+./scripts/bootstrap-mc-assets.sh
+```
+
+`./scripts/build-no-ide.sh` запускает этот шаг автоматически перед сборкой.
+
 ## Почему у тебя 27 ошибок `package ... does not exist`
 
 Ты компилируешь `BattlePrepMod.java` отдельно, без classpath Forge/FML и без остальных исходников.

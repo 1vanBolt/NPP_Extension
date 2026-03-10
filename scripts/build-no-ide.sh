@@ -47,6 +47,9 @@ else
 fi
 
 echo "[INFO] Using Gradle: $($GRADLE_CMD -v | awk '/Gradle / {print $2; exit}')"
+echo "[INFO] Bootstrapping Minecraft 1.7.10 jars into Gradle cache..."
+"$PROJECT_DIR/scripts/bootstrap-mc-assets.sh"
+
 echo "[INFO] Очистка и сборка..."
 "$GRADLE_CMD" clean build
 
