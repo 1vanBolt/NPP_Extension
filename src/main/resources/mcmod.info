@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "npp_extension",
+    "name": "NPP Extension",
+    "description": "GUI controls for day/night, gamemode, difficulty and a global 30-minute PvP prep timer.",
+    "version": "1.0.0",
+    "mcversion": "1.7.10",
+    "url": "",
+    "authorList": ["Codex"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
