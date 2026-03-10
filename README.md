@@ -24,7 +24,7 @@
 
 ## Сборка без IDE
 
-### Вариант A (рекомендуется): через Gradle
+### Вариант A (рекомендуется): через Gradle 6.9.4
 
 ```bash
 ./scripts/build-no-ide.sh
@@ -80,3 +80,8 @@ jar cf dist\npp-extension-1.0.0-manual.jar -C build\classes\main . -C src\main\r
 - JDK 8 (не 11/17/21/25)
 - Для Gradle-сборки: установленный `gradle`
 - Для ручной сборки: подготовленные зависимости в `libs/*.jar`
+
+## Типичные ошибки
+
+- `Plugin with id 'maven' not found`
+  - Запущен слишком новый Gradle (7+). Для Forge 1.7.10 используй Gradle 6.9.4.

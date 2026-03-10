@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! command -v gradle >/dev/null 2>&1; then
+  echo "[ERROR] gradle не найден в PATH"
+  echo "Установите Gradle 6.9.4 и попробуйте снова."
+  exit 1
+fi
+
+GRADLE_VERSION="$(gradle -v | awk '/Gradle / {print $2; exit}')"
+GRADLE_MAJOR="${GRADLE_VERSION%%.*}"
+if [[ -z "${GRADLE_VERSION}" ]]; then
+  echo "[ERROR] Не удалось определить версию Gradle"
+  exit 1
+fi
+
+if (( GRADLE_MAJOR >= 7 )); then
+  echo "[ERROR] ForgeGradle 1.2 (MC 1.7.10) несовместим с Gradle ${GRADLE_VERSION}."
+  echo "Используйте Gradle 6.9.4 или ниже (рекомендуется 6.9.4)."
+  exit 1
+fi
+
 if ! command -v java >/dev/null 2>&1; then
   echo "[ERROR] java не найдена в PATH"
   exit 1
@@ -11,15 +30,10 @@ if ! command -v javac >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v gradle >/dev/null 2>&1; then
-  echo "[ERROR] gradle не найден в PATH"
-  echo "Установите Gradle 6.x и попробуйте снова."
-  exit 1
-fi
-
 JAVA_VERSION_RAW="$(java -version 2>&1 | head -n 1)"
 JAVAC_VERSION_RAW="$(javac -version 2>&1)"
 
+echo "[INFO] Gradle ${GRADLE_VERSION}"
 echo "[INFO] $JAVA_VERSION_RAW"
 echo "[INFO] $JAVAC_VERSION_RAW"
 
