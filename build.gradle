@@ -1,0 +1,96 @@
+import groovy.json.JsonSlurper
+import org.gradle.util.GradleVersion
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "https://maven.minecraftforge.net"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+if (GradleVersion.current() != GradleVersion.version('2.14.1')) {
+    throw new GradleException('ForgeGradle 1.2 (Minecraft 1.7.10) requires Gradle 2.14.1. Current: ' + GradleVersion.current())
+}
+
+apply plugin: 'forge'
+
+group = 'ru.npp.extension'
+version = '1.0.0'
+archivesBaseName = 'npp-extension'
+
+minecraft {
+    version = '1.7.10-10.13.4.1614-1.7.10'
+    runDir = 'run'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    mcVersion = '1.7.10'
+    manifestUrl = 'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'
+}
+
+task bootstrapLegacyMinecraftAssets {
+    description = 'Downloads MC 1.7.10 client/server jars from Mojang manifest into Gradle cache to bypass dead legacy S3 URL.'
+
+    doLast {
+        def slurper = new JsonSlurper()
+        def manifest = slurper.parse(new URL(manifestUrl))
+        def version = manifest.versions.find { it.id == mcVersion }
+        if (version == null) {
+            throw new GradleException("Minecraft version ${mcVersion} not found in Mojang manifest")
+        }
+
+        def versionMeta = slurper.parse(new URL(version.url))
+        def clientUrl = versionMeta.downloads.client.url
+        def serverUrl = versionMeta.downloads.server.url
+
+        def gradleUserHome = gradle.gradleUserHomeDir
+        def base = new File(gradleUserHome, 'caches/minecraft/net/minecraft')
+
+        def targets = [
+            [url: clientUrl, file: new File(base, "minecraft/${mcVersion}/minecraft-${mcVersion}.jar")],
+            [url: clientUrl, file: new File(base, "client/${mcVersion}/client-${mcVersion}.jar")],
+            [url: serverUrl, file: new File(base, "minecraft_server/${mcVersion}/minecraft_server-${mcVersion}.jar")],
+            [url: serverUrl, file: new File(base, "server/${mcVersion}/server-${mcVersion}.jar")]
+        ]
+
+        targets.each { target ->
+            target.file.parentFile.mkdirs()
+            ant.get(src: target.url, dest: target.file, verbose: true)
+            logger.lifecycle("[bootstrap] wrote ${target.file}")
+        }
+    }
+}
+
+afterEvaluate {
+    ['downloadClient', 'downloadServer'].each { taskName ->
+        def t = tasks.findByName(taskName)
+        if (t != null) {
+            t.dependsOn bootstrapLegacyMinecraftAssets
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
+}
+
+
+task compileClassesOnly(dependsOn: ['classes']) {
+    group = 'build'
+    description = 'Compiles mod sources into .class only (no jar/reobf).'
+    doLast {
+        println '[OK] Classes are in build/classes/main'
+    }
+}
